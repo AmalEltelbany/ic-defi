@@ -2,19 +2,778 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>IC Hello Starter</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DeFi Protocol</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .auth-section {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .user-info {
+      color: white;
+      display: none;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e1e5e9;
+      border-radius: 10px;
+      font-size: 14px;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #4CAF50;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      color: #666;
+    }
+
+    .error {
+      color: #e74c3c;
+      background: #ffeaea;
+      padding: 10px;
+      border-radius: 10px;
+      margin: 10px 0;
+      display: none;
+    }
+
+    .success {
+      color: #27ae60;
+      background: #eafaf1;
+      padding: 10px;
+      border-radius: 10px;
+      margin: 10px 0;
+      display: none;
+    }
+
+    .pool-item {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 15px;
+      margin-bottom: 15px;
+      border-left: 4px solid #4CAF50;
+    }
+
+    .pool-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .pool-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: bold;
+      color: #4CAF50;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .nav {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .auth-section {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <div class="browser-warning">
-    ⚠️ If this page appears broken, try reloading. If the problem persists, try switching browsers; Chrome or
-    Firefox are recommended.
+  <div class="container">
+    <div class="header">
+      <div class="nav">
+        <div class="logo">🚀 DeFi Protocol</div>
+        <div class="auth-section">
+          <div class="user-info" id="userInfo">
+            <span id="userPrincipal"></span>
+          </div>
+          <button class="btn btn-primary" id="loginBtn">Login with Internet Identity</button>
+          <button class="btn btn-secondary hidden" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+      <div id="authStatus" class="loading">Checking authentication...</div>
+    </div>
+
+    <div id="unauthenticatedView">
+      <div class="card">
+        <h2 style="text-align: center; margin-bottom: 20px;">Welcome to DeFi Protocol</h2>
+        <p style="text-align: center; margin-bottom: 30px; color: #666;">
+          Please login with Internet Identity to access the DeFi features.
+        </p>
+        <div style="text-align: center;">
+          <button class="btn btn-primary" onclick="login()">
+            🔐 Login with Internet Identity
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="authenticatedView" class="hidden">
+      <div class="grid">
+        <!-- Pool Creation -->
+        <div class="card">
+          <h3>Create New Pool</h3>
+          <div class="form-group">
+            <label>Token A Principal:</label>
+            <input type="text" id="tokenA" placeholder="e.g., rdmx6-jaaaa-aaaaa-aaadq-cai">
+          </div>
+          <div class="form-group">
+            <label>Token B Principal:</label>
+            <input type="text" id="tokenB" placeholder="e.g., rrkah-fqaaa-aaaaa-aaaaq-cai">
+          </div>
+          <div class="form-group">
+            <label>Initial Amount A:</label>
+            <input type="number" id="initialA" placeholder="1000">
+          </div>
+          <div class="form-group">
+            <label>Initial Amount B:</label>
+            <input type="number" id="initialB" placeholder="1000">
+          </div>
+          <div class="form-group">
+            <label>Fee Rate (basis points):</label>
+            <input type="number" id="feeRate" placeholder="30" value="30">
+          </div>
+          <button class="btn btn-primary" onclick="createPool()">Create Pool</button>
+          <div id="createPoolError" class="error"></div>
+          <div id="createPoolSuccess" class="success"></div>
+        </div>
+
+        <!-- Swap Tokens -->
+        <div class="card">
+          <h3>Swap Tokens</h3>
+          <div class="form-group">
+            <label>Pool ID:</label>
+            <input type="text" id="swapPoolId" placeholder="Pool ID">
+          </div>
+          <div class="form-group">
+            <label>Token In Principal:</label>
+            <input type="text" id="tokenIn" placeholder="Token principal">
+          </div>
+          <div class="form-group">
+            <label>Amount In:</label>
+            <input type="number" id="amountIn" placeholder="100">
+          </div>
+          <div class="form-group">
+            <label>Min Amount Out:</label>
+            <input type="number" id="minAmountOut" placeholder="90">
+          </div>
+          <button class="btn btn-primary" onclick="swapTokens()">Swap</button>
+          <div id="swapError" class="error"></div>
+          <div id="swapSuccess" class="success"></div>
+        </div>
+
+        <!-- Add Liquidity -->
+        <div class="card">
+          <h3>Add Liquidity</h3>
+          <div class="form-group">
+            <label>Pool ID:</label>
+            <input type="text" id="liquidityPoolId" placeholder="Pool ID">
+          </div>
+          <div class="form-group">
+            <label>Amount A:</label>
+            <input type="number" id="liquidityAmountA" placeholder="100">
+          </div>
+          <div class="form-group">
+            <label>Amount B:</label>
+            <input type="number" id="liquidityAmountB" placeholder="100">
+          </div>
+          <div class="form-group">
+            <label>Min Liquidity:</label>
+            <input type="number" id="minLiquidity" placeholder="90">
+          </div>
+          <button class="btn btn-primary" onclick="addLiquidity()">Add Liquidity</button>
+          <div id="liquidityError" class="error"></div>
+          <div id="liquiditySuccess" class="success"></div>
+        </div>
+      </div>
+
+      <!-- Pools Display -->
+      <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3>Available Pools</h3>
+          <button class="btn btn-secondary" onclick="loadPools()">Refresh</button>
+        </div>
+        <div id="poolsList">
+          <div class="loading">Loading pools...</div>
+        </div>
+      </div>
+
+      <!-- User Position -->
+      <div class="card">
+        <h3>My Position</h3>
+        <div id="userPosition">
+          <div class="loading">Loading position...</div>
+        </div>
+      </div>
+
+      <!-- Backend Stats -->
+      <div class="card">
+        <h3>Protocol Stats</h3>
+        <div id="protocolStats">
+          <div class="loading">Loading stats...</div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div id="root"></div>
-  <script type="module" src="/src/main.js"></script>
+
+  <script type="module">
+    import { AuthClient } from "https://cdn.jsdelivr.net/npm/@dfinity/auth-client@1.0.1/lib/esm/index.js";
+    import { Actor, HttpAgent } from "https://cdn.jsdelivr.net/npm/@dfinity/agent@1.0.1/lib/esm/index.js";
+    import { Principal } from "https://cdn.jsdelivr.net/npm/@dfinity/principal@1.0.1/lib/esm/index.js";
+
+    // Replace with your actual canister ID after deployment
+    const BACKEND_CANISTER_ID = process.env.CANISTER_ID_DEFI_BACKEND || "rdmx6-jaaaa-aaaaa-aaadq-cai";
+    const II_CANISTER_ID = process.env.CANISTER_ID_INTERNET_IDENTITY || "rdmx6-jaaaa-aaaaa-aaadq-cai";
+
+    // IDL Factory for backend canister
+    const idlFactory = ({ IDL }) => {
+      const Account = IDL.Record({ 'owner': IDL.Principal, 'subaccount': IDL.Opt(IDL.Vec(IDL.Nat8)) });
+      const Pool = IDL.Record({
+        'id': IDL.Text,
+        'token_a': IDL.Principal,
+        'token_b': IDL.Principal,
+        'reserve_a': IDL.Nat,
+        'reserve_b': IDL.Nat,
+        'total_liquidity': IDL.Nat,
+        'fee_rate': IDL.Nat64,
+        'created_at': IDL.Nat64,
+        'created_by': IDL.Principal,
+      });
+      const UserPosition = IDL.Record({
+        'liquidity_tokens': IDL.Nat,
+        'deposited_a': IDL.Nat,
+        'deposited_b': IDL.Nat,
+        'last_updated': IDL.Nat64,
+      });
+      const CreatePoolArgs = IDL.Record({
+        'token_a': IDL.Principal,
+        'token_b': IDL.Principal,
+        'initial_a': IDL.Nat,
+        'initial_b': IDL.Nat,
+        'fee_rate': IDL.Nat64,
+      });
+      const SwapArgs = IDL.Record({
+        'pool_id': IDL.Text,
+        'token_in': IDL.Principal,
+        'amount_in': IDL.Nat,
+        'min_amount_out': IDL.Nat,
+      });
+      const AddLiquidityArgs = IDL.Record({
+        'pool_id': IDL.Text,
+        'amount_a': IDL.Nat,
+        'amount_b': IDL.Nat,
+        'min_liquidity': IDL.Nat,
+      });
+      const DeFiError = IDL.Variant({
+        'Unauthorized': IDL.Null,
+        'PoolNotFound': IDL.Null,
+        'InsufficientLiquidity': IDL.Null,
+        'InvalidAmount': IDL.Null,
+        'SlippageTolerance': IDL.Null,
+        'TokenTransferFailed': IDL.Text,
+        'PoolAlreadyExists': IDL.Null,
+        'InvalidTokenPair': IDL.Null,
+      });
+      const Result_1 = IDL.Variant({ 'Ok': IDL.Text, 'Err': DeFiError });
+      const Result_2 = IDL.Variant({ 'Ok': Pool, 'Err': DeFiError });
+      const Result_3 = IDL.Variant({ 'Ok': IDL.Nat, 'Err': DeFiError });
+      const Result_4 = IDL.Variant({ 'Ok': IDL.Null, 'Err': DeFiError });
+
+      return IDL.Service({
+        'get_caller_principal': IDL.Func([], [IDL.Principal], ['query']),
+        'whoami': IDL.Func([], [IDL.Principal], ['query']),
+        'get_canister_principal': IDL.Func([], [IDL.Principal], ['query']),
+        'create_pool': IDL.Func([CreatePoolArgs], [Result_1], []),
+        'get_pool': IDL.Func([IDL.Text], [Result_2], ['query']),
+        'get_all_pools': IDL.Func([], [IDL.Vec(Pool)], ['query']),
+        'get_user_position': IDL.Func([IDL.Principal], [IDL.Opt(UserPosition)], ['query']),
+        'get_my_position': IDL.Func([], [IDL.Opt(UserPosition)], ['query']),
+        'swap_tokens': IDL.Func([SwapArgs], [Result_3], []),
+        'add_liquidity': IDL.Func([AddLiquidityArgs], [Result_3], []),
+        'set_icrc_ledgers': IDL.Func([IDL.Principal, IDL.Principal], [Result_4], []),
+        'get_icrc_ledgers': IDL.Func([], [IDL.Opt(IDL.Principal), IDL.Opt(IDL.Principal)], ['query']),
+        'health_check': IDL.Func([], [IDL.Text], ['query']),
+        'get_stats': IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text))], ['query']),
+      });
+    };
+
+    let authClient;
+    let actor;
+    let isAuthenticated = false;
+
+    // Initialize the app
+    async function init() {
+      console.log("Initializing DeFi app...");
+
+      try {
+        authClient = await AuthClient.create();
+
+        if (await authClient.isAuthenticated()) {
+          await handleAuthenticated();
+        } else {
+          showUnauthenticatedView();
+        }
+      } catch (error) {
+        console.error("Initialization error:", error);
+        showError("authStatus", "Failed to initialize authentication");
+      }
+    }
+
+    async function handleAuthenticated() {
+      isAuthenticated = true;
+
+      const identity = authClient.getIdentity();
+      const agent = new HttpAgent({ identity });
+
+      // Only fetch root key in development
+      if (process.env.DFX_NETWORK !== "ic") {
+        await agent.fetchRootKey();
+      }
+
+      actor = Actor.createActor(idlFactory, {
+        agent,
+        canisterId: BACKEND_CANISTER_ID,
+      });
+
+      await showAuthenticatedView();
+      await loadInitialData();
+    }
+
+    function showUnauthenticatedView() {
+      document.getElementById("authStatus").style.display = "none";
+      document.getElementById("unauthenticatedView").classList.remove("hidden");
+      document.getElementById("authenticatedView").classList.add("hidden");
+      document.getElementById("loginBtn").classList.remove("hidden");
+      document.getElementById("logoutBtn").classList.add("hidden");
+    }
+
+    async function showAuthenticatedView() {
+      try {
+        const principal = await actor.whoami();
+
+        document.getElementById("authStatus").style.display = "none";
+        document.getElementById("unauthenticatedView").classList.add("hidden");
+        document.getElementById("authenticatedView").classList.remove("hidden");
+        document.getElementById("loginBtn").classList.add("hidden");
+        document.getElementById("logoutBtn").classList.remove("hidden");
+        document.getElementById("userInfo").style.display = "block";
+        document.getElementById("userPrincipal").textContent = principal.toString().substring(0, 10) + "...";
+      } catch (error) {
+        console.error("Error showing authenticated view:", error);
+        showError("authStatus", "Failed to verify authentication");
+      }
+    }
+
+    async function login() {
+      try {
+        const identityProvider = process.env.DFX_NETWORK === "ic"
+          ? "https://identity.ic0.app"
+          : `http://${II_CANISTER_ID}.localhost:4943`;
+
+        await authClient.login({
+          identityProvider,
+          onSuccess: async () => {
+            await handleAuthenticated();
+          },
+          onError: (error) => {
+            console.error("Login error:", error);
+            showError("authStatus", "Login failed");
+          }
+        });
+      } catch (error) {
+        console.error("Login error:", error);
+        showError("authStatus", "Login failed");
+      }
+    }
+
+    async function logout() {
+      await authClient.logout();
+      isAuthenticated = false;
+      actor = null;
+      showUnauthenticatedView();
+    }
+
+    async function loadInitialData() {
+      await loadPools();
+      await loadUserPosition();
+      await loadStats();
+    }
+
+    async function createPool() {
+      if (!isAuthenticated) return;
+
+      try {
+        const tokenA = Principal.fromText(document.getElementById("tokenA").value);
+        const tokenB = Principal.fromText(document.getElementById("tokenB").value);
+        const initialA = BigInt(document.getElementById("initialA").value);
+        const initialB = BigInt(document.getElementById("initialB").value);
+        const feeRate = BigInt(document.getElementById("feeRate").value);
+
+        const args = {
+          token_a: tokenA,
+          token_b: tokenB,
+          initial_a: initialA,
+          initial_b: initialB,
+          fee_rate: feeRate,
+        };
+
+        const result = await actor.create_pool(args);
+
+        if ('Ok' in result) {
+          showSuccess("createPoolSuccess", `Pool created with ID: ${result.Ok}`);
+          clearForm(['tokenA', 'tokenB', 'initialA', 'initialB']);
+          await loadPools();
+        } else {
+          showError("createPoolError", `Error: ${Object.keys(result.Err)[0]}`);
+        }
+      } catch (error) {
+        console.error("Create pool error:", error);
+        showError("createPoolError", "Failed to create pool");
+      }
+    }
+
+    async function swapTokens() {
+      if (!isAuthenticated) return;
+
+      try {
+        const poolId = document.getElementById("swapPoolId").value;
+        const tokenIn = Principal.fromText(document.getElementById("tokenIn").value);
+        const amountIn = BigInt(document.getElementById("amountIn").value);
+        const minAmountOut = BigInt(document.getElementById("minAmountOut").value);
+
+        const args = {
+          pool_id: poolId,
+          token_in: tokenIn,
+          amount_in: amountIn,
+          min_amount_out: minAmountOut,
+        };
+
+        const result = await actor.swap_tokens(args);
+
+        if ('Ok' in result) {
+          showSuccess("swapSuccess", `Swapped! Got ${result.Ok} tokens`);
+          clearForm(['swapPoolId', 'tokenIn', 'amountIn', 'minAmountOut']);
+          await loadPools();
+        } else {
+          showError("swapError", `Error: ${Object.keys(result.Err)[0]}`);
+        }
+      } catch (error) {
+        console.error("Swap error:", error);
+        showError("swapError", "Failed to swap tokens");
+      }
+    }
+
+    async function addLiquidity() {
+      if (!isAuthenticated) return;
+
+      try {
+        const poolId = document.getElementById("liquidityPoolId").value;
+        const amountA = BigInt(document.getElementById("liquidityAmountA").value);
+        const amountB = BigInt(document.getElementById("liquidityAmountB").value);
+        const minLiquidity = BigInt(document.getElementById("minLiquidity").value);
+
+        const args = {
+          pool_id: poolId,
+          amount_a: amountA,
+          amount_b: amountB,
+          min_liquidity: minLiquidity,
+        };
+
+        const result = await actor.add_liquidity(args);
+
+        if ('Ok' in result) {
+          showSuccess("liquiditySuccess", `Added liquidity! Got ${result.Ok} LP tokens`);
+          clearForm(['liquidityPoolId', 'liquidityAmountA', 'liquidityAmountB', 'minLiquidity']);
+          await loadPools();
+          await loadUserPosition();
+        } else {
+          showError("liquidityError", `Error: ${Object.keys(result.Err)[0]}`);
+        }
+      } catch (error) {
+        console.error("Add liquidity error:", error);
+        showError("liquidityError", "Failed to add liquidity");
+      }
+    }
+
+    async function loadPools() {
+      if (!isAuthenticated) return;
+
+      try {
+        const pools = await actor.get_all_pools();
+        const poolsList = document.getElementById("poolsList");
+
+        if (pools.length === 0) {
+          poolsList.innerHTML = '<p style="text-align: center; color: #666;">No pools available</p>';
+          return;
+        }
+
+        poolsList.innerHTML = pools.map(pool => `
+                    <div class="pool-item">
+                        <div class="pool-header">
+                            <h4>Pool: ${pool.id}</h4>
+                            <span style="background: #4CAF50; color: white; padding: 4px 8px; border-radius: 8px; font-size: 12px;">
+                                ${Number(pool.fee_rate) / 100}% Fee
+                            </span>
+                        </div>
+                        <div class="pool-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${pool.reserve_a.toString()}</div>
+                                <div class="stat-label">Reserve A</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${pool.reserve_b.toString()}</div>
+                                <div class="stat-label">Reserve B</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${pool.total_liquidity.toString()}</div>
+                                <div class="stat-label">Total Liquidity</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${new Date(Number(pool.created_at) / 1000000).toLocaleDateString()}</div>
+                                <div class="stat-label">Created</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+      } catch (error) {
+        console.error("Load pools error:", error);
+        document.getElementById("poolsList").innerHTML = '<p style="color: #e74c3c;">Failed to load pools</p>';
+      }
+    }
+
+    async function loadUserPosition() {
+      if (!isAuthenticated) return;
+
+      try {
+        const position = await actor.get_my_position();
+        const userPosition = document.getElementById("userPosition");
+
+        if (!position || position.length === 0) {
+          userPosition.innerHTML = '<p style="text-align: center; color: #666;">No positions found</p>';
+          return;
+        }
+
+        const pos = position[0];
+        userPosition.innerHTML = `
+                    <div class="pool-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${pos.liquidity_tokens.toString()}</div>
+                            <div class="stat-label">LP Tokens</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${pos.deposited_a.toString()}</div>
+                            <div class="stat-label">Deposited A</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${pos.deposited_b.toString()}</div>
+                            <div class="stat-label">Deposited B</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${new Date(Number(pos.last_updated) / 1000000).toLocaleDateString()}</div>
+                            <div class="stat-label">Last Updated</div>
+                        </div>
+                    </div>
+                `;
+      } catch (error) {
+        console.error("Load user position error:", error);
+        document.getElementById("userPosition").innerHTML = '<p style="color: #e74c3c;">Failed to load position</p>';
+      }
+    }
+
+    async function loadStats() {
+      if (!isAuthenticated) return;
+
+      try {
+        const stats = await actor.get_stats();
+        const protocolStats = document.getElementById("protocolStats");
+
+        protocolStats.innerHTML = `
+                    <div class="pool-stats">
+                        ${stats.map(([key, value]) => `
+                            <div class="stat-item">
+                                <div class="stat-value">${value}</div>
+                                <div class="stat-label">${key.replace('_', ' ').toUpperCase()}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+      } catch (error) {
+        console.error("Load stats error:", error);
+        document.getElementById("protocolStats").innerHTML = '<p style="color: #e74c3c;">Failed to load stats</p>';
+      }
+    }
+
+    function showError(elementId, message) {
+      const element = document.getElementById(elementId);
+      element.textContent = message;
+      element.style.display = 'block';
+      setTimeout(() => {
+        element.style.display = 'none';
+      }, 5000);
+    }
+
+    function showSuccess(elementId, message) {
+      const element = document.getElementById(elementId);
+      element.textContent = message;
+      element.style.display = 'block';
+      setTimeout(() => {
+        element.style.display = 'none';
+      }, 5000);
+    }
+
+    function clearForm(fieldIds) {
+      fieldIds.forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    }
+
+    // Make functions globally available
+    window.login = login;
+    window.logout = logout;
+    window.createPool = createPool;
+    window.swapTokens = swapTokens;
+    window.addLiquidity = addLiquidity;
+    window.loadPools = loadPools;
+
+    // Initialize app when DOM is loaded
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
 </body>
 
 </html>
